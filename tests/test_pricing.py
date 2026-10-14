@@ -7,7 +7,7 @@ def test_discount_basic():
 
 
 def test_discount_boundaries():
-    assert apply_discount(100, 0) == 101.0
+    assert apply_discount(100, 0) == 100.0
     assert apply_discount(100, 100) == 0.0
 
 
