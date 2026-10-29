@@ -10,8 +10,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Compute module hashes
+        id: hashes
+        run: |
+          python scripts/cache_key.py --json > module_hashes.json
+          echo "combined=$(python scripts/cache_key.py --combined)" >> $GITHUB_OUTPUT
+          echo "pricing=$(python scripts/cache_key.py --module pricing)" >> $GITHUB_OUTPUT
+          echo "cart=$(python scripts/cache_key.py --module cart)" >> $GITHUB_OUTPUT
+          echo "inventory=$(python scripts/cache_key.py --module inventory)" >> $GITHUB_OUTPUT
+      - name: Cache test results
+        uses: actions/cache@v4
+        with:
+          path: .pytest_cache
+          key: test-${{ runner.os }}-${{ steps.hashes.outputs.combined }}
+          restore-keys: |
+            test-${{ runner.os }}-
       - name: Run tests
         run: |
           set -o pipefail
           pytest 2>&1 | tee build.log
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
