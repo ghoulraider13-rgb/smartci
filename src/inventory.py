@@ -9,3 +9,6 @@ class Inventory:
         if self.stock.get(name, 0) < qty:
             raise ValueError('not enough stock')
         self.stock[name] -= qty
+
+    def get_stock(self, name):
+        return self.stock.get(name, 0)
