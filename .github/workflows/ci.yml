@@ -27,6 +27,16 @@ jobs:
           echo "pricing=$(python scripts/cache_key.py --module pricing)" >> $GITHUB_OUTPUT
           echo "cart=$(python scripts/cache_key.py --module cart)" >> $GITHUB_OUTPUT
           echo "inventory=$(python scripts/cache_key.py --module inventory)" >> $GITHUB_OUTPUT
+      - name: Select tests to run
+        id: select
+        run: |
+          SELECTED=$(python scripts/select_tests.py)
+          echo "selected=$SELECTED" >> $GITHUB_OUTPUT
+          if [ "$SELECTED" = "all" ]; then
+            echo "Running full test suite"
+          else
+            echo "Running selected tests: $SELECTED"
+          fi
       - name: Cache test results
         uses: actions/cache@v4
         with:
@@ -37,7 +47,11 @@ jobs:
       - name: Run tests
         run: |
           set -o pipefail
-          pytest 2>&1 | tee build.log
+          if [ "${{ steps.select.outputs.selected }}" = "all" ]; then
+            pytest 2>&1 | tee build.log
+          else
+            pytest ${{ steps.select.outputs.selected }} 2>&1 | tee build.log
+          fi
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
