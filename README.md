@@ -9,6 +9,10 @@
 - ✅ **Lab 0:** Project skeleton setup (VS Code, Python 3.12, Git, Copilot, virtual environment, folder structure, GitHub repo)
 - ✅ **Lab 1:** App and tests (pricing.py, cart.py, inventory.py, 9 pytest tests - all passing)
 - ✅ **Lab 2:** Baseline CI pipeline (GitHub Actions workflow with green and red runs)
+- ✅ **Lab 3:** Smart Build-Cache Invalidation
+- ✅ **Lab 4:** Dynamic Test-Subset Routing
+- ✅ **Lab 5:** LLM-Based Build/Error-Log Summarization
+- ✅ **Lab 6:** Build-Failure Prediction
 
 ## GitHub Actions - Red Run Explanation
 
@@ -26,27 +30,78 @@ A red run (failed CI build) serves several critical purposes:
 
 5. **Documents Expected Behavior**: The failing test documents what the correct behavior should be (in this case: `apply_discount(100, 0) == 100.0`, not `101.0`).
 
-## Screenshots Required for Submission
+## Task 3: Smart Build-Cache Invalidation
 
-Please capture the following from the GitHub repository:
+**Goal:** Cache what is safe to reuse across CI runs, and invalidate only what a change actually affects.
 
-1. **Repository Overview** - Main page showing commits and tags (lab1, lab2)
-2. **Actions Tab - All Runs** - Showing both green (success) and red (failure) runs
-3. **Red Run Details** - Click on the failed run "Break test for red run experiment" to show:
-   - The failed step "Run tests"
-   - Error log showing: `assert 100.0 == 101.0` in `tests/test_pricing.py:10`
-   - `FAILED tests/test_pricing.py::test_discount_boundaries - assert 100.0 == 101.0`
-4. **Green Run Details** - Click on any successful run showing all 9 tests passing
+**How to run:**
+```bash
+# View dependency graph
+python scripts/dep_graph.py
 
-## Tags Created
-- `lab1` - After Lab 1 completion (app + tests)
-- `lab2` - After Lab 2 completion (CI pipeline with green + red runs)
+# View module hashes
+python scripts/cache_key.py
 
-## Key Files
-- `.github/workflows/ci.yml` - CI pipeline configuration
-- `src/pricing.py` - Discount and tax functions
-- `src/cart.py` - Shopping cart with pricing integration
-- `src/inventory.py` - Stock management
-- `tests/test_pricing.py` - 5 tests (basic, boundaries, invalid, tax)
-- `tests/test_cart.py` - 2 tests (discount total, empty cart)
-- `tests/test_inventory.py` - 3 tests (add, remove, remove too much)
+# Run CI (triggers on push/PR automatically)
+```
+
+**Files:** `scripts/dep_graph.py`, `scripts/cache_key.py`
+
+**Tag:** `lab3`
+
+## Task 4: Dynamic Test-Subset Routing
+
+**Goal:** Run only the tests relevant to a change, with safe fallbacks to the full suite.
+
+**How to run:**
+```bash
+# View selected tests for current diff
+python scripts/select_tests.py
+
+# Run tests (CI auto-runs on push/PR)
+python scripts/select_tests.py | xargs pytest
+```
+
+**Files:** `scripts/select_tests.py`, `tests/test_select_tests.py`
+
+**Tag:** `lab4`
+
+## Task 5: LLM-Based Build/Error-Log Summarization
+
+**Goal:** Turn a noisy `build.log` into a short, structured summary of failures.
+
+**How to run:**
+```bash
+# Generate a failing build.log, then summarize
+python scripts/summarize_log.py
+
+# With LLM key (set as GitHub Secret ANTHROPIC_API_KEY or OPENAI_API_KEY):
+ANTHROPIC_API_KEY=xxx python scripts/summarize_log.py
+```
+
+**Files:** `scripts/summarize_log.py`
+
+**Tag:** `lab5`
+
+## Task 6: Build-Failure Prediction
+
+**Goal:** Predict build-failure likelihood before running tests, warn-only (never blocks).
+
+**How to run:**
+```bash
+# Export real CI history (run in repo root with gh CLI)
+python ml/export_real_runs.py
+
+# Generate synthetic labelled data
+python ml/generate_synthetic.py
+
+# Train the model
+python ml/train.py
+
+# Predict current commit
+python ml/predict.py
+```
+
+**Files:** `ml/features.py`, `ml/train.py`, `ml/predict.py`, `ml/export_real_runs.py`, `ml/generate_synthetic.py`, `ml/requirements.txt`
+
+**Tag:** `lab6`
