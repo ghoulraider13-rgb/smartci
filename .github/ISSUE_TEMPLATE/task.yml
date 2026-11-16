@@ -1,0 +1,37 @@
+name: Technical Task
+description: Create a technical task or sub-task linked to a User Story
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: input
+    id: parent_story
+    attributes:
+      label: Related User Story
+      description: Reference the parent User Story issue number (e.g., #1).
+      placeholder: "#1"
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Describe the technical work required.
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Implementation Checklist
+      placeholder: |
+        - [ ] Implement module changes
+        - [ ] Add/update unit tests
+        - [ ] Verify CI pipeline passes
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High
+        - Medium
+        - Low
+      default: 1

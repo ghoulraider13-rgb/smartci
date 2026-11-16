@@ -1,0 +1,65 @@
+name: User Story
+description: Create an Agile User Story with acceptance criteria and story points
+title: "[US] "
+labels: ["user-story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to define an Agile User Story for the SmartCI project.
+  - type: textarea
+    id: story
+    attributes:
+      label: User Story
+      description: Follow the standard Agile format.
+      placeholder: |
+        **As a** developer / CI engineer
+        **I want** ...
+        **So that** ...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define the Definition of Done (DoD) for this story.
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Unit tests added and passing in pytest
+    validations:
+      required: true
+  - type: dropdown
+    id: story_points
+    attributes:
+      label: Story Points
+      description: Fibonacci estimate of effort/complexity.
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+      default: 2
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High
+        - Medium
+        - Low
+      default: 1
+    validations:
+      required: true
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Target Sprint
+      options:
+        - Sprint 1 (Core & Baseline CI)
+        - Sprint 2 (Smart CI & ML Prediction)
+        - Sprint 3 (Backlog / Future)
+      default: 1

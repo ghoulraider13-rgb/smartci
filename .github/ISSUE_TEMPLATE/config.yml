@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: SmartCI Agile Sprint Board
+    url: https://github.com/ghoulraider13-rgb/smartci/projects
+    about: View the Kanban & Sprint Board for SmartCI
+  - name: Agile Exploration Report
+    url: https://github.com/ghoulraider13-rgb/smartci/blob/main/docs/AGILE_EXPLORATION_REPORT.md
+    about: Read the Agile / Project-Management tool exploration report

@@ -1,0 +1,58 @@
+name: Agile Board & Workflow Automation
+
+on:
+  issues:
+    types: [opened, labeled, closed, reopened]
+  pull_request:
+    types: [opened, ready_for_review, closed]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  agile-workflow-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Agile Workflow Transition
+        run: |
+          echo "Event: ${{ github.event_name }} (${{ github.event.action }})" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            echo "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}" >> $GITHUB_STEP_SUMMARY
+            echo "State: ${{ github.event.issue.state }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+            echo "Merged: ${{ github.event.pull_request.merged }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Auto-triage Issue Labels
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title || '';
+            const labelsToAdd = [];
+            if (title.startsWith('[US]') && !context.payload.issue.labels.some(l => l.name === 'user-story')) {
+              labelsToAdd.push('user-story');
+            } else if (title.startsWith('[TASK]') && !context.payload.issue.labels.some(l => l.name === 'task')) {
+              labelsToAdd.push('task');
+            } else if (title.startsWith('[BUG]') && !context.payload.issue.labels.some(l => l.name === 'bug')) {
+              labelsToAdd.push('bug');
+            }
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labelsToAdd
+              });
+            }
+
+      - name: Add Issue/PR to GitHub Project Board (when PROJECT_URL is configured)
+        if: vars.PROJECT_URL != ''
+        continue-on-error: true
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: ${{ vars.PROJECT_URL }}
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT || secrets.GITHUB_TOKEN }}
